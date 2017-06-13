@@ -47,3 +47,21 @@ CREATE TABLE impi (
   brand_name varchar(120) NOT NULL,
   collected_at timestamptz NOT NULL DEFAULT now()
 );
+
+CREATE TABLE inai (
+  id serial primary key,
+  position varchar(255) NOT NULL,
+  source varchar(120) NOT NULL,
+  link varchar(255) NOT NULL,
+  collected_at timestamptz NOT NULL DEFAULT now(),
+  person_name varchar(80) NOT NULL
+);
+
+CREATE TABLE screening_list (
+  id serial primary key,
+  name varchar(255) NOT NULL,
+  source varchar(120) NOT NULL,
+  source_information_url varchar(255) NOT NULL,
+  collected_at timestamptz NOT NULL DEFAULT now(),
+  keyword varchar(80) NOT NULL
+);
