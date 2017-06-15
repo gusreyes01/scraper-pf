@@ -1,21 +1,25 @@
 import requests
 
 from bs4 import BeautifulSoup
-from db import get_connection
+from scrapers.scraper import WebScraper, log_decorator
 
 
-def scrap_by_person_name(name):
-    r = requests.get('http://www.dof.gob.mx/busqueda_detalle.php?vienede=avanzada&busqueda_cuerpo=&BUSCAR_EN=C&'
-                     'textobusqueda={}&TIPO_TEXTO=Y&choosePeriodDate=P&periodoFecha=Y&orga%5B%5D=AV%2C1'.format(name))
+class DiarioOficial(WebScraper):
+    def __init__(self):
+        super(DiarioOficial, self).__init__()
+        self.agent_id = 7
 
-    soup = BeautifulSoup(r.text, 'html.parser')
-    table = soup.find('table', {'class': 'bus_det_list'})
-    rows = table.find_all('tr')
+    @log_decorator
+    def execute(self, q=None):
+        super(DiarioOficial, self).execute()
 
-    conn = get_connection()
-    cursor = conn.cursor()
+        r = requests.get('http://www.dof.gob.mx/busqueda_detalle.php?vienede=avanzada&busqueda_cuerpo=&BUSCAR_EN=C&'
+                         'textobusqueda={}&TIPO_TEXTO=Y&choosePeriodDate=P&periodoFecha=Y&orga%5B%5D=AV%2C1'.format(q))
 
-    try:
+        soup = BeautifulSoup(r.text, 'html.parser')
+        table = soup.find('table', {'class': 'bus_det_list'})
+        rows = table.find_all('tr')
+
         for row in rows:
             td = row.find('td', {'class': 'txt_azul'})
             if td:
@@ -23,13 +27,12 @@ def scrap_by_person_name(name):
                 link = td.a.get('href')
                 notice = td.a.string
 
-                query = 'INSERT INTO dof (date, notice, link, person_name) VALUES (%s, %s, %s, %s);'
-                cursor.execute(query, (date, notice, link, name))
+                query = 'INSERT INTO scraper (header, url, body, fuente_id) VALUES (%s, %s, %s, %s);'
+                self.cursor.execute(query, (notice, link, td.text.strip('\t\n\r'), self.agent_id))
+                self.incr()
 
-        conn.commit()
-    finally:
-        conn.close()
+        self.conn.commit()
 
 
 if __name__ == '__main__':
-    scrap_by_person_name('pablo')
+    DiarioOficial().execute(q='pablo')

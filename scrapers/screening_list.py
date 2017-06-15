@@ -1,30 +1,33 @@
 import requests
 
 from bs4 import BeautifulSoup
-from db import get_connection
+from scrapers.scraper import WebScraper, log_decorator
 
 
-def scrap_by_keyword(keyword):
-    r = requests.get('https://api.trade.gov/consolidated_screening_list/search?api_key=hQ4L7ylI9POH3QuqxOY_l2UC&q={}'.
-                     format(keyword))
+class ScreeningListScraper(WebScraper):
+    def __init__(self):
+        super(ScreeningListScraper, self).__init__()
+        self.agent_id = 15
 
-    if r.status_code != 200:
-        return
+    @log_decorator
+    def execute(self, q=None):
+        super(ScreeningListScraper, self).execute()
 
-    response = r.json()
-    conn = get_connection()
-    cursor = conn.cursor()
+        r = requests.get(
+            'https://api.trade.gov/consolidated_screening_list/search?api_key=hQ4L7ylI9POH3QuqxOY_l2UC&q={}'.
+                format(q))
 
-    try:
+        if r.status_code != 200:
+            return
+
+        response = r.json()
         for result in response['results']:
-            query = 'INSERT INTO screening_list (name, source, source_information_url, keyword) VALUES ' \
-                    '(%s, %s, %s, %s);'
-            cursor.execute(query, (result['name'], result['source'], result['source_information_url'], keyword))
+            query = 'INSERT INTO scraper (header, url, body, fuente_id) VALUES (%s, %s, %s, %s);'
+            self.cursor.execute(query, (result['name'], result['source_information_url'], result['source'],
+                                        self.agent_id))
+            self.incr()
 
-        conn.commit()
-    except:
-        conn.close()
-
+        self.conn.commit()
 
 if __name__ == '__main__':
-    scrap_by_keyword('inmuebles')
+    ScreeningListScraper().execute(q='inmuebles')

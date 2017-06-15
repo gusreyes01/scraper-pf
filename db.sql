@@ -3,65 +3,38 @@ CREATE USER scraper_pf WITH PASSWORD 'scraper_pf';
 GRANT ALL PRIVILEGES ON DATABASE scraper_pf to scraper_pf;
 
 
-CREATE TABLE dof (
+CREATE TABLE sipres (
   id serial primary key,
-  date varchar(15) NOT NULL,
-  notice varchar(80) NOT NULL,
-  link varchar(200) NOT NULL,
-  person_name varchar(80) NOT NULL,
+  institution varchar(512) NOT NULL,
   collected_at timestamptz NOT NULL DEFAULT now()
 );
 
-
-CREATE TABLE se (
-  id serial primary key,
-  publication varchar(120) NOT NULL,
-  date varchar(15) NOT NULL,
-  link varchar(200) NOT NULL,
-  person_name varchar(80) NOT NULL,
-  business_name varchar(120) NOT NULL,
-  collected_at timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE TABLE buho (
-  id serial primary key,
-  name varchar(120) NOT NULL,
-  paternal_last_name varchar(120) NOT NULL,
-  maternal_last_name varchar(120) NOT NULL,
-  carrer varchar(200) NOT NULL,
-  college varchar(200) NOT NULL,
-  state varchar(40) NOT NULL,
-  year varchar(4) NOT NULL,
-  collected_at timestamptz NOT NULL DEFAULT now(),
-  person_name varchar(80) NOT NULL,
-  link varchar(200) NOT NULL
-);
-
-CREATE TABLE impi (
-  id serial primary key,
-  request_type varchar(80) NOT NULL,
-  brand_type varchar(80) NOT NULL,
-  record varchar(20) NOT NULL,
-  registration varchar(20) NOT NULL,
-  denomination varchar(120) NOT NULL,
-  brand_name varchar(120) NOT NULL,
-  collected_at timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE TABLE inai (
-  id serial primary key,
-  position varchar(255) NOT NULL,
-  source varchar(120) NOT NULL,
-  link varchar(255) NOT NULL,
-  collected_at timestamptz NOT NULL DEFAULT now(),
-  person_name varchar(80) NOT NULL
-);
-
-CREATE TABLE screening_list (
+CREATE TABLE fp_sancionados (
   id serial primary key,
   name varchar(255) NOT NULL,
-  source varchar(120) NOT NULL,
-  source_information_url varchar(255) NOT NULL,
-  collected_at timestamptz NOT NULL DEFAULT now(),
-  keyword varchar(80) NOT NULL
+  url varchar(255) NOT NULL,
+  collected_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE logs (
+  id serial primary key,
+  execution_date timestamptz NOT NULL,
+  new_records INTEGER NOT NULL,
+  execution_time DECIMAL NOT NULL,
+  execution_code INTEGER NOT NULL,
+  agent_id INTEGER NOT NULL
+);
+
+CREATE TABLE scraper (
+  id serial primary key,
+  header varchar(255) NULL,
+  url varchar(512) NOT NULL,
+  body varchar(512) NULL,
+  visible BOOLEAN NOT NULL DEFAULT true,
+  alerta BOOLEAN NOT NULL DEFAULT false,
+  created timestamptz NOT NULL DEFAULT now(),
+  fuente_id INTEGER NOT NULL,
+  persona_fisica_id INTEGER NULL,
+  persona_moral_id INTEGER NULL,
+  report_id INTEGER NULL
 );
