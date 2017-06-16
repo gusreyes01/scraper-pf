@@ -3,7 +3,10 @@ BEGIN;
 CREATE DATABASE scraper_pf;
 CREATE USER scraper_pf WITH PASSWORD 'scraper_pf';
 GRANT ALL PRIVILEGES ON DATABASE scraper_pf to scraper_pf;
+COMMIT;
 
+
+BEGIN;
 CREATE TABLE agentes (
   id INTEGER primary key NOT NULL,
   orden INTEGER NOT NULL,
@@ -20,6 +23,14 @@ CREATE TABLE fp_sancionados (
   id serial primary key,
   name varchar(255) NOT NULL,
   url varchar(255) NOT NULL,
+  collected_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE council_sancionados (
+  id serial primary key,
+  description TEXT NOT NULL,
+  type varchar(15) NOT NULL,
+  url varchar(512) NULL,
   collected_at timestamptz NOT NULL DEFAULT now()
 );
 
