@@ -47,7 +47,7 @@ CREATE TABLE scraper (
   id serial primary key,
   header varchar(255) NULL,
   url varchar(512) NOT NULL,
-  body varchar(512) NULL,
+  body TEXT NULL,
   visible BOOLEAN NOT NULL DEFAULT true,
   alerta BOOLEAN NOT NULL DEFAULT false,
   created timestamptz NOT NULL DEFAULT now(),
