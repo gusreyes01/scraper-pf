@@ -2,6 +2,7 @@ import requests
 
 from bs4 import BeautifulSoup
 from db import get_connection
+from scrapers.scraper import WebScraper, log_decorator
 
 
 def get_sipres_results():
@@ -21,5 +22,27 @@ def get_sipres_results():
     finally:
         conn.close()
 
+
+class CondusefScraper(WebScraper):
+    def __init__(self):
+        super(CondusefScraper, self).__init__()
+        self.agent_id = 2
+
+    @log_decorator
+    def execute(self, q=None):
+        super(CondusefScraper, self).execute()
+
+        query = "SELECT id, institution FROM sipres WHERE institution LIKE '%{}%';".format(q)
+        self.cursor.execute(query)
+        query_params = [(record[1], '', record[1], self.agent_id) for record in self.cursor]
+
+        for params in query_params:
+            self.cursor.execute('INSERT INTO scraper (header, url, body, fuente_id) VALUES (%s, %s, %s, %s);', params)
+            self.incr()
+
+        self.conn.commit()
+
+
 if __name__ == '__main__':
-    get_sipres_results()
+    # get_sipres_results()
+    CondusefScraper().execute(q='Agrofina')
